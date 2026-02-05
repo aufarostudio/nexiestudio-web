@@ -1,0 +1,113 @@
+/* Global Styles */
+body {
+    background: #f4f6f9;
+    /* Light clean background */
+    font-family: 'Outfit', sans-serif;
+    color: #333;
+}
+
+/* Nav */
+nav .brand-logo {
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+/* Typography */
+.header-text {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glass Card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+    /* For rounded corners on table */
+}
+
+/* Table */
+.premium-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.premium-table th {
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 20px 15px;
+}
+
+.premium-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.product-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+    margin: 0 5px;
+    border-radius: 8px;
+    box-shadow: none !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Buttons */
+.gradient-btn {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+}
+
+.fixed-action-btn .btn-large {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Modal */
+.glass-modal {
+    border-radius: 16px;
+    max-height: 85%;
+}
+
+.glass-modal .modal-content {
+    padding: 30px;
+}
+
+.glass-modal h5 {
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #444;
+}
+
+/* Form inputs focus color */
+.input-field input:focus+label,
+.input-field textarea:focus+label {
+    color: #764ba2 !important;
+}
+
+.input-field input:focus,
+.input-field textarea:focus {
+    border-bottom: 1px solid #764ba2 !important;
+    box-shadow: 0 1px 0 0 #764ba2 !important;
+}
+
+.input-field .prefix.active {
+    color: #764ba2 !important;
+}
