@@ -29,7 +29,17 @@
     </nav>
 
     <div class="container main-container">
-        <h4 class="header-text">Gestionar Productos</h4>
+        <div class="row valign-wrapper">
+            <div class="col s8">
+                <h4 class="header-text">Gestionar Productos</h4>
+            </div>
+            <div class="col s4 right-align">
+                <a class="waves-effect waves-light btn gradient-btn modal-trigger" href="#categoriesModal"
+                    onclick="loadCategories()">
+                    <i class="material-icons left">list</i>Mis Categorías
+                </a>
+            </div>
+        </div>
 
         <!-- Table Card -->
         <div class="card glass-card">
@@ -54,10 +64,49 @@
 
         <!-- Floating Action Button -->
         <div class="fixed-action-btn">
-            <a class="btn-floating btn-large gradient-btn modal-trigger waves-effect waves-light" href="#productModal"
-                onclick="prepareCreate()">
+            <a class="btn-floating btn-large gradient-btn waves-effect waves-light" onclick="prepareCreate()">
                 <i class="large material-icons">add</i>
             </a>
+        </div>
+    </div>
+
+    <!-- Categories Modal -->
+    <div id="categoriesModal" class="modal glass-modal">
+        <div class="modal-content">
+            <h5>Mis Categorías</h5>
+            <div class="row">
+                <div class="col s12">
+                    <table class="highlight responsive-table premium-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="center-align">Mostrar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- Categories inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="margin-top: 20px;">
+                <div class="input-field col s10">
+                    <i class="material-icons prefix">category</i>
+                    <input id="newCategoryName" type="text" class="validate">
+                    <label for="newCategoryName">Nueva Categoría</label>
+                </div>
+                <div class="col s2 valign-wrapper" style="height: 80px;">
+                    <a class="btn-floating waves-effect waves-light gradient-btn" onclick="createCategory()">
+                        <i class="material-icons">save</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer transparent">
+            <a href="#!" class="modal-close waves-effect waves-red btn-flat">Cerrar</a>
         </div>
     </div>
 
@@ -133,9 +182,11 @@
                             </label>
                         </div>
                     </div>
-                    <div class="col s12 m6">
-                        <label>Categorías (Máx 3)</label>
-                        <div class="chips" id="categoriasChips"></div>
+                    <div class="input-field col s12 m6">
+                        <select id="categoriaSelect">
+                            <option value="" disabled selected>Elige una categoría</option>
+                        </select>
+                        <label>Categoría</label>
                     </div>
                 </div>
             </form>

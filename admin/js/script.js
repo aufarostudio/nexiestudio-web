@@ -18,14 +18,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Discount Toggle Listener
     document.getElementById('tiene_descuento').addEventListener('change', toggleDiscountInput);
 
-    // Initialize Chips (Categories)
-    const chipsElem = document.getElementById('categoriasChips');
-    window.categoriesChipsInstance = M.Chips.init(chipsElem, {
-        placeholder: 'Categorías +Enter',
-        secondaryPlaceholder: '+Categoría',
-        limit: 3,
-        data: []
-    });
+    // Initialize Selects
+    const selects = document.querySelectorAll('select');
+    M.FormSelect.init(selects);
 });
 
 let currentBusinessId = null;
@@ -96,6 +91,44 @@ async function loadBusinessLogic() {
     }
 }
 
+window.loadCategorySelect = async function (selectedId = null) {
+    const select = document.getElementById('categoriaSelect');
+    console.log("selectedId: ", selectedId);
+    // Default option
+    select.innerHTML = '<option value="" disabled selected>Seleccionar</option>';
+
+    try {
+        if (!currentBusinessId) return;
+
+        const { data, error } = await _supabase
+            .from('categorias')
+            .select('id, nombre')
+            .eq('negocio_id', currentBusinessId)
+            .eq('mostrar', true)
+            .order('orden', { ascending: true });
+
+        if (error) throw error;
+
+        data.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id; // Use ID as value
+            option.innerText = cat.nombre;
+
+            // Check if this option should be selected
+            // Use loose equality to match string/number differences
+            if (selectedId && cat.id == selectedId) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        M.FormSelect.init(select);
+
+    } catch (error) {
+        console.error('Error cargando select de categorías:', error);
+    }
+};
+
 async function loadProducts() {
     const tableBody = document.getElementById('productsTableBody');
     tableBody.innerHTML = '<tr><td colspan="6" class="center-align">Cargando productos...</td></tr>';
@@ -109,7 +142,7 @@ async function loadProducts() {
             .eq('negocio_id', currentBusinessId) // Filter by Business ID
             .eq('eliminado', false) // Soft Delete Filter
             .order('id', { ascending: true });
-
+        console.log("productosData: ", data);
         if (error) throw error;
 
         renderTable(data);
@@ -182,7 +215,7 @@ async function toggleActive(id, isActive) {
 let isEditing = false;
 let editingId = null;
 
-function prepareCreate() {
+async function prepareCreate() {
     isEditing = false;
     editingId = null;
     document.getElementById('productForm').reset();
@@ -195,18 +228,8 @@ function prepareCreate() {
     document.getElementById('precio_descuento').disabled = true;
     document.getElementById('mas_vendido').checked = false;
 
-    // Reset Chips
-    if (window.categoriesChipsInstance) {
-        // Destroy old instance and re-init to clear
-        const chipsElem = document.getElementById('categoriasChips');
-        window.categoriesChipsInstance.destroy();
-        window.categoriesChipsInstance = M.Chips.init(chipsElem, {
-            placeholder: 'Categorías +Enter',
-            secondaryPlaceholder: '+Categoría',
-            limit: 3,
-            data: []
-        });
-    }
+    // Load Categories FIRST
+    await loadCategorySelect();
 
     // Reset Image Preview
     const preview = document.getElementById('imagePreview');
@@ -214,6 +237,10 @@ function prepareCreate() {
     preview.style.display = 'none';
 
     M.updateTextFields();
+
+    // Open Modal Programmatically
+    const modal = M.Modal.getInstance(document.getElementById('productModal'));
+    modal.open();
 }
 
 // Need to expose this globally because it's called from HTML string
@@ -230,6 +257,10 @@ window.editProduct = async function (id) {
 
         if (error) throw error;
         if (!product) throw new Error('Producto no encontrado');
+
+        // Load Categories FIRST, passing the current ID to select it
+        const storedCatId = product.categoria_id || product.categoria;
+        await loadCategorySelect(storedCatId);
 
         isEditing = true;
         editingId = id;
@@ -253,22 +284,19 @@ window.editProduct = async function (id) {
             discountInput.disabled = true;
         }
 
-        // Populate Chips
-        const chipsElem = document.getElementById('categoriasChips');
-        if (window.categoriesChipsInstance) window.categoriesChipsInstance.destroy();
+        // Populate Select
+        // Assuming 'categoria' stores comma separated string, we take the first one or just matches.
+        // If DB stores "Bebidas, Comidas", we might only support single selection now with Select.
+        // User requested "Select", implying single choice usually, or multiple. 
+        // Materialize Select supports multiple but let's assume single for now based on "Category Input" replacement.
+        // If the product has multiple categories, we might select the first one or handle multi-select.
+        // Given the prompt said "change input... for a Select", single selection is safest assumption for "ordering".
 
-        let chipsData = [];
+        /*let currentCat = '';
         if (product.categoria) {
-            // Split by comma and trim
-            chipsData = product.categoria.split(',').map(tag => ({ tag: tag.trim() }));
-        }
-
-        window.categoriesChipsInstance = M.Chips.init(chipsElem, {
-            placeholder: 'Categorías +Enter',
-            secondaryPlaceholder: '+Categoría',
-            limit: 3,
-            data: chipsData
-        });
+            currentCat = product.categoria.split(',')[0].trim();
+        }*/
+        //loadCategorySelect(currentCat);
 
 
         // Show existing image
@@ -308,11 +336,17 @@ window.saveProduct = async function () {
     const precio_descuento_val = document.getElementById('precio_descuento').value;
     const mas_vendido = document.getElementById('mas_vendido').checked;
 
-    // Get Categories from Chips
+    // Get Category from Select
+    const categoriaSelect = document.getElementById('categoriaSelect');
+    const categoria_id = categoriaSelect.value || null;
     let categoria = '';
-    if (window.categoriesChipsInstance) {
-        const chips = window.categoriesChipsInstance.chipsData; // Array of objects {tag: 'foo'}
-        categoria = chips.map(c => c.tag).join(',');
+
+    // Get Name for legacy support
+    if (categoria_id) {
+        const selectedOption = categoriaSelect.options[categoriaSelect.selectedIndex];
+        if (selectedOption) {
+            categoria = selectedOption.text;
+        }
     }
 
     // Validation
@@ -349,7 +383,7 @@ window.saveProduct = async function () {
     try {
         let finalImageUrl = null;
         let productIdToUse = editingId;
-
+        console.log("categoria_id:", categoria_id);
         const commonData = {
             nombre,
             descripcion,
@@ -357,7 +391,8 @@ window.saveProduct = async function () {
             tiene_descuento,
             precio_descuento,
             mas_vendido,
-            categoria,
+            categoria_id, // Save ID
+            categoria,    // Save Name (Legacy Support)
             negocio_id: currentBusinessId,
             activo: true, // Default active on create
             eliminado: false // Default not deleted
@@ -463,5 +498,112 @@ window.deleteProduct = async function (id) {
             console.error('Error eliminando:', error);
             M.toast({ html: 'Error al eliminar: ' + error.message, classes: 'red rounded' });
         }
+    }
+};
+
+// --- Categories Management Logic ---
+
+window.loadCategories = async function () {
+    console.log('Cargando categorías...');
+    const tableBody = document.getElementById('categoriesTableBody');
+    tableBody.innerHTML = '<tr><td colspan="2" class="center-align">Cargando...</td></tr>';
+
+    try {
+        if (!currentBusinessId) throw new Error('No se ha cargado el negocio');
+
+        const { data, error } = await _supabase
+            .from('categorias')
+            .select('*')
+            .eq('negocio_id', currentBusinessId)
+            .order('orden', { ascending: true });
+
+        if (error) throw error;
+
+        renderCategoriesTable(data);
+    } catch (error) {
+        console.error('Error cargando categorías:', error);
+        tableBody.innerHTML = '<tr><td colspan="2" class="center-align red-text">Error al cargar categorías</td></tr>';
+    }
+};
+
+function renderCategoriesTable(categories) {
+    const tableBody = document.getElementById('categoriesTableBody');
+    tableBody.innerHTML = '';
+
+    if (!categories || categories.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="2" class="center-align">No hay categorías registradas.</td></tr>';
+        return;
+    }
+
+    categories.forEach(cat => {
+        const row = document.createElement('tr');
+        // Checkbox state: checked if cat.mostrar is true
+        const isChecked = cat.mostrar ? 'checked' : '';
+
+        row.innerHTML = `
+            <td>${cat.nombre}</td>
+            <td class="center-align">
+                <div class="switch">
+                    <label>
+                        <input type="checkbox" ${isChecked} onchange="toggleCategoryShow('${cat.id}', this.checked)">
+                        <span class="lever"></span>
+                    </label>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+window.toggleCategoryShow = async function (id, isVisible) {
+    try {
+        const { error } = await _supabase
+            .from('categorias')
+            .update({ mostrar: isVisible })
+            .eq('id', id);
+
+        if (error) throw error;
+        M.toast({ html: isVisible ? 'Categoría visible' : 'Categoría oculta', classes: 'green rounded' });
+    } catch (error) {
+        console.error('Error actualizando categoría:', error);
+        M.toast({ html: 'Error al actualizar: ' + error.message, classes: 'red rounded' });
+        // Optional: Revert checkbox visual state if needed
+    }
+};
+
+window.createCategory = async function () {
+    const input = document.getElementById('newCategoryName');
+    const nombre = input.value.trim();
+
+    if (!nombre) {
+        M.toast({ html: 'Ingresa un nombre para la categoría', classes: 'orange rounded' });
+        return;
+    }
+
+    if (!currentBusinessId) {
+        M.toast({ html: 'Error de negocio', classes: 'red rounded' });
+        return;
+    }
+
+    try {
+        // Insert new category
+        const { data, error } = await _supabase
+            .from('categorias')
+            .insert([{
+                nombre: nombre,
+                negocio_id: currentBusinessId,
+                mostrar: true // Default visible
+            }])
+            .select();
+
+        if (error) throw error;
+
+        M.toast({ html: 'Categoría creada exitosamente', classes: 'green rounded' });
+        input.value = ''; // Clear input
+        loadCategories(); // Reload table
+
+    } catch (error) {
+        console.error('Error creando categoría:', error);
+        M.toast({ html: 'Error al crear: ' + error.message, classes: 'red rounded' });
     }
 };
