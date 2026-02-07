@@ -224,7 +224,7 @@ function createProductCard(product) {
             <div class="price-row">
                 ${priceHtml}
                 <button class="add-btn" onclick="addToCart('${product.id}')">
-                    <i class="material-icons" style="font-size: 18px;">shopping_cart</i> Añadir
+                    + <i class="material-icons" style="font-size: 16px;">shopping_cart</i>
                 </button>
             </div>
         </div>

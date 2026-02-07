@@ -29,11 +29,11 @@
     </nav>
 
     <div class="container main-container">
-        <div class="row valign-wrapper">
-            <div class="col s8">
-                <h4 class="header-text">Gestionar Productos</h4>
+        <div class="row valign-wrapper" style="flex-wrap: wrap;">
+            <div class="col s12 m8">
+                <h4 class="header-text center-on-small-only">Gestionar Productos</h4>
             </div>
-            <div class="col s4 right-align">
+            <div class="col s12 m4 right-align center-on-small-only">
                 <a class="waves-effect waves-light btn gradient-btn modal-trigger" href="#categoriesModal"
                     onclick="loadCategories()">
                     <i class="material-icons left">list</i>Mis Categorías
@@ -44,7 +44,7 @@
         <!-- Table Card -->
         <div class="card glass-card">
             <div class="card-content">
-                <table class="highlight responsive-table premium-table">
+                <table class="highlight premium-table">
                     <thead>
                         <tr>
                             <th>Mostrar</th>
@@ -76,7 +76,7 @@
             <h5>Mis Categorías</h5>
             <div class="row">
                 <div class="col s12">
-                    <table class="highlight responsive-table premium-table">
+                    <table class="highlight premium-table">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -93,14 +93,14 @@
             <div class="divider"></div>
 
             <div class="row" style="margin-top: 20px;">
-                <div class="input-field col s10">
-                    <i class="material-icons prefix">category</i>
+                <div class="input-field col s8">
                     <input id="newCategoryName" type="text" class="validate">
                     <label for="newCategoryName">Nueva Categoría</label>
                 </div>
-                <div class="col s2 valign-wrapper" style="height: 80px;">
-                    <a class="btn-floating waves-effect waves-light gradient-btn" onclick="createCategory()">
-                        <i class="material-icons">save</i>
+                <div class="col s4 valign-wrapper" style="height: 80px;">
+                    <a class="btn-floating waves-effect waves-light gradient-btn"
+                        style="width: 40px; height: 40px; line-height: 40px;" onclick="createCategory()">
+                        <i class="material-icons" style="line-height: 40px;">save</i>
                     </a>
                 </div>
             </div>

@@ -111,3 +111,86 @@ nav .brand-logo {
 .input-field .prefix.active {
     color: #764ba2 !important;
 }
+
+/* Responsive Table */
+@media screen and (max-width: 800px) {
+    .premium-table thead {
+        display: none;
+    }
+
+    .premium-table tr {
+        display: block;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .premium-table td {
+        display: flex;
+        /* Flex layout for row content */
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        height: auto;
+        /* Allow height to grow */
+    }
+
+    /* Force wrap for long text in card view */
+    .premium-table td.truncate {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        max-width: none !important;
+        /* Remove limit */
+        text-align: right;
+    }
+
+    .premium-table td:last-child {
+        border-bottom: 0;
+        justify-content: center;
+        /* Center actions */
+    }
+
+    .premium-table td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #777;
+        font-size: 0.8rem;
+    }
+
+    .product-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* Adjust header for mobile */
+    .header-text {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    /* Adjust 'Mis Categorías' button to fit */
+    .row.valign-wrapper .btn {
+        padding: 0 10px;
+        font-size: 0.8rem;
+        height: 32px;
+        line-height: 32px;
+    }
+
+    .row.valign-wrapper .btn i {
+        font-size: 1rem;
+        margin-right: 5px;
+        line-height: 32px;
+    }
+
+    .center-on-small-only {
+        text-align: center !important;
+        justify-content: center !important;
+    }
+}

@@ -164,21 +164,27 @@ function renderTable(products) {
     products.forEach(product => {
         const row = document.createElement('tr');
         // Handle image: check if it's a valid URL, else placeholder
-        const imgUrl = product.imagen_url || 'https://placehold.co/100';
+        let imgUrl = product.imagen_url ? `${product.imagen_url}?t=${new Date().getTime()}` : 'https://placehold.co/100';
         const isChecked = product.activo ? 'checked' : '';
 
         row.innerHTML = `
-            <td class="center-align">
+            <td class="center-align" data-label="Mostrar">
                 <label>
                     <input type="checkbox" ${isChecked} onchange="toggleActive('${product.id}', this.checked)" />
                     <span></span>
                 </label>
             </td>
-            <td><img src="${imgUrl}" alt="${product.nombre}" class="product-img" onerror="this.src='https://placehold.co/100'"></td>
-            <td><strong>${product.nombre}</strong></td>
-            <td class="truncate" style="max-width: 200px;">${product.descripcion}</td>
-            <td>$${parseFloat(product.price || product.precio).toFixed(2)}</td>
-            <td class="center-align">
+            <td data-label="Imagen"><img src="${imgUrl}" alt="${product.nombre}" class="product-img" onerror="this.src='https://placehold.co/100'"></td>
+            <td data-label="Nombre"><strong>${product.nombre}</strong></td>
+            <td class="truncate" style="max-width: 200px;" data-label="Descripción">${product.descripcion}</td>
+            <td data-label="Precio">
+                ${(product.tiene_descuento && product.precio_descuento > 0)
+                ? `<span class="black-text">S/ ${parseFloat(product.precio_descuento).toFixed(2)}</span>
+                       <br><span class="grey-text" style="text-decoration: line-through; font-size: 0.8em;">S/ ${parseFloat(product.price || product.precio).toFixed(2)}</span>`
+                : `S/ ${parseFloat(product.price || product.precio).toFixed(2)}`
+            }
+            </td>
+            <td class="center-align" data-label="Acciones">
                 <a class="btn-small waves-effect waves-light blue action-btn" onclick="editProduct('${product.id}')">
                     <i class="material-icons">edit</i>
                 </a>
@@ -541,8 +547,8 @@ function renderCategoriesTable(categories) {
         const isChecked = cat.mostrar ? 'checked' : '';
 
         row.innerHTML = `
-            <td>${cat.nombre}</td>
-            <td class="center-align">
+            <td data-label="Nombre">${cat.nombre}</td>
+            <td class="center-align" data-label="Mostrar">
                 <div class="switch">
                     <label>
                         <input type="checkbox" ${isChecked} onchange="toggleCategoryShow('${cat.id}', this.checked)">
