@@ -1,7 +1,13 @@
 const SLUG = 'polleria-uripa';
 let currentBusiness = null;
+let currentProducts = [];
+let cart = [];
 
 document.addEventListener('DOMContentLoaded', async function () {
+    // Initialize modals
+    var elems = document.querySelectorAll('.modal');
+    M.Modal.init(elems);
+
     await initMenu();
 });
 
@@ -26,7 +32,7 @@ async function loadBusiness() {
 
     const { data, error } = await _supabase
         .from('negocios')
-        .select('id, nombre, portada_url, perfil_url, direccion, hora_apertura, hora_cierre')
+        .select('id, nombre, portada_url, perfil_url, direccion, hora_apertura, hora_cierre, telefono_whatsapp')
         .eq('slug', SLUG)
         .single();
 
@@ -118,67 +124,96 @@ function renderBusinessDetails(business) {
 async function loadMenuProducts() {
     if (!currentBusiness.id) return;
 
-    const { data: products, error } = await _supabase
+    // 1. Fetch active categories for this business, ordered by 'orden'
+    const { data: categories, error: catError } = await _supabase
+        .from('categorias')
+        .select('*')
+        .eq('negocio_id', currentBusiness.id)
+        .eq('mostrar', true)
+        .order('orden', { ascending: true });
+
+    if (catError) {
+        console.error('Error fetching categories:', catError);
+        return;
+    }
+
+    // 2. Fetch active products for this business
+    const { data: products, error: prodError } = await _supabase
         .from('productos')
         .select('*')
         .eq('negocio_id', currentBusiness.id)
         .eq('activo', true)
         .eq('eliminado', false)
-        .order('categoria', { ascending: true }); // Order by category roughly
+        .order('orden', { ascending: true });
 
-    if (error) {
-        console.error('Error fetching products:', error);
+    if (prodError) {
+        console.error('Error fetching products:', prodError);
         return;
     }
 
-    renderMenu(products);
+    currentProducts = products;
+    renderMenu(categories, products);
 }
 
-function renderMenu(products) {
+function renderMenu(categories, products) {
     const container = document.getElementById('menu-container');
     container.innerHTML = '';
 
-    if (!products || products.length === 0) {
+    if (!categories || categories.length === 0 || !products || products.length === 0) {
         container.innerHTML = '<p class="center-align" style="margin-top:20px;">No hay productos disponibles por el momento.</p>';
         return;
     }
 
-    // Group by Category
-    const grouped = {};
-    const defaultCategory = 'General';
+    // Render by Category based on ordering from the 'categorias' table
+    categories.forEach(category => {
+        // Filter products that belong to this category
+        // Support legacy 'categoria' string if 'categoria_id' is null
+        const categoryProducts = products.filter(p =>
+            p.categoria_id === category.id || (!p.categoria_id && p.categoria === category.nombre)
+        );
 
-    products.forEach(p => {
-        let cat = defaultCategory;
-        if (p.categoria) {
-            // Take the first tag as the main category
-            cat = p.categoria.split(',')[0].trim();
+        // Only render section if it has products inside
+        if (categoryProducts.length > 0) {
+            // Section Title
+            const titleEl = document.createElement('h5');
+            titleEl.className = 'category-title container';
+            titleEl.innerText = category.nombre;
+            container.appendChild(titleEl);
+
+            // Products Container for this Category
+            const sectionEl = document.createElement('div');
+            sectionEl.className = 'container products-grid';
+
+            categoryProducts.forEach(product => {
+                const card = createProductCard(product);
+                sectionEl.appendChild(card);
+            });
+
+            container.appendChild(sectionEl);
         }
-        // Capitalize
-        cat = cat.charAt(0).toUpperCase() + cat.slice(1);
-
-        if (!grouped[cat]) grouped[cat] = [];
-        grouped[cat].push(p);
     });
 
-    // Render Groups
-    Object.keys(grouped).forEach(category => {
-        // Section Title
+    // Handle "orphaned" products that don't match any active category
+    const orphanedProducts = products.filter(p =>
+        !categories.some(c => c.id === p.categoria_id || (!p.categoria_id && c.nombre === p.categoria))
+    );
+
+    if (orphanedProducts.length > 0) {
         const titleEl = document.createElement('h5');
         titleEl.className = 'category-title container';
-        titleEl.innerText = category;
+        titleEl.innerText = 'Otros'; // Fallback category title
         container.appendChild(titleEl);
 
-        // Products Container for this Category
         const sectionEl = document.createElement('div');
         sectionEl.className = 'container products-grid';
 
-        grouped[category].forEach(product => {
+        orphanedProducts.forEach(product => {
             const card = createProductCard(product);
             sectionEl.appendChild(card);
         });
 
         container.appendChild(sectionEl);
-    });
+    }
 }
 
 function createProductCard(product) {
@@ -234,7 +269,153 @@ function createProductCard(product) {
 }
 
 function addToCart(productId) {
-    console.log('Add to cart:', productId);
-    // Placeholder for interaction
-    M.toast({ html: 'Producto añadido (Demo)', classes: 'rounded gradient-btn' });
+    const product = currentProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    // Determine the real price (discounted or original)
+    const price = (product.tiene_descuento && product.precio_descuento > 0)
+        ? parseFloat(product.precio_descuento)
+        : parseFloat(product.precio);
+
+    // Check if already in cart
+    const existingItemIndex = cart.findIndex(item => item.product.id === productId);
+
+    if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+    } else {
+        cart.push({
+            product: product,
+            price: price,
+            quantity: 1
+        });
+    }
+
+    renderCart();
+    M.toast({ html: 'Producto añadido', classes: 'rounded gradient-btn' });
+}
+
+function updateCartQuantity(index, delta) {
+    if (index >= 0 && index < cart.length) {
+        cart[index].quantity += delta;
+
+        // Minimum quantity is 1 while in cart
+        if (cart[index].quantity < 1) {
+            cart[index].quantity = 1;
+        }
+
+        renderCart();
+    }
+}
+
+function removeFromCart(index) {
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+}
+
+function openCart() {
+    var modal = M.Modal.getInstance(document.getElementById('cartModal'));
+    if (modal) modal.open();
+}
+
+function renderCart() {
+    const qtyBadge = document.getElementById('cart-qty-badge');
+    const floatingTotal = document.getElementById('cart-floating-total');
+    const floatingCart = document.getElementById('floating-cart');
+
+    const itemsContainer = document.getElementById('cart-items-container');
+    const modalTotal = document.getElementById('cart-modal-total');
+
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    itemsContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+        floatingCart.style.display = 'none';
+        itemsContainer.innerHTML = '<li class="collection-item center-align" style="padding: 20px; color: #777;">Tu carrito está vacío</li>';
+        modalTotal.innerText = 'S/ 0.00';
+
+        // Auto close modal if empty
+        var modal = M.Modal.getInstance(document.getElementById('cartModal'));
+        if (modal && modal.isOpen) modal.close();
+        return;
+    }
+
+    // Render Items
+    cart.forEach((item, index) => {
+        totalQty += item.quantity;
+        totalPrice += (item.price * item.quantity);
+
+        const li = document.createElement('li');
+        li.className = 'collection-item cart-item';
+
+        li.innerHTML = `
+            <div class="cart-item-details">
+                <p class="cart-item-title">${item.product.nombre}</p>
+                <p class="cart-item-price">S/ ${item.price.toFixed(2)}</p>
+            </div>
+            <div class="cart-item-actions">
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="updateCartQuantity(${index}, -1)">
+                        <i class="material-icons">remove</i>
+                    </button>
+                    <span class="qty-display">${item.quantity}</span>
+                    <button class="qty-btn" onclick="updateCartQuantity(${index}, 1)">
+                        <i class="material-icons">add</i>
+                    </button>
+                </div>
+                <button class="remove-item-btn" onclick="removeFromCart(${index})">
+                    <i class="material-icons">delete_outline</i>
+                </button>
+            </div>
+        `;
+        itemsContainer.appendChild(li);
+    });
+
+    // Update Totals UI
+    floatingCart.style.display = 'flex';
+    qtyBadge.innerText = totalQty;
+    floatingTotal.innerText = `S/ ${totalPrice.toFixed(2)}`;
+    modalTotal.innerText = `S/ ${totalPrice.toFixed(2)}`;
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        M.toast({ html: 'Tu carrito está vacío', classes: 'rounded red' });
+        return;
+    }
+
+    // Get Payment Method
+    let paymentMethod = 'Efectivo';
+    const paymentRadios = document.getElementsByName('payment_method');
+    for (let radio of paymentRadios) {
+        if (radio.checked) {
+            paymentMethod = radio.value;
+            break;
+        }
+    }
+
+    let totalPrice = 0;
+
+    // Build WhatsApp Message
+    let message = `Hola, quisiera hacer un pedido:\n\n`;
+
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        totalPrice += itemTotal;
+        message += `- ${item.quantity}x ${item.product.nombre} (S/ ${item.price.toFixed(2)})\n`;
+    });
+
+    message += `\nMétodo de pago: *${paymentMethod}*\n`;
+    message += `*Total: S/ ${totalPrice.toFixed(2)}*\n\n`;
+    message += `Gracias.`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const phoneNumber = currentBusiness.telefono_whatsapp || "51951278429";
+
+    const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+    window.open(waUrl, '_blank');
 }

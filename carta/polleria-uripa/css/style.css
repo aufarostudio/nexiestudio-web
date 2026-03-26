@@ -311,3 +311,149 @@ body {
 .status-green {
     background-color: #43A047;
 }
+
+/* --- Cart Styles --- */
+
+/* Floating Cart */
+.floating-cart {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: linear-gradient(45deg, #2e7d32 0%, #4caf50 100%);
+    color: white;
+    border-radius: 30px;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.floating-cart:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.5);
+}
+
+.cart-info {
+    display: flex;
+    align-items: center;
+}
+
+.cart-qty {
+    background: white;
+    color: #2e7d32;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-right: 8px; 
+    z-index: 2;
+}
+
+.cart-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Cart Modal */
+.cart-modal {
+    max-height: 85% !important;
+    border-radius: 20px 20px 0 0 !important;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cart-header h5 {
+    margin: 0;
+    font-weight: 700;
+    color: #333;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item-details {
+    flex-grow: 1;
+    padding-right: 10px;
+}
+
+.cart-item-title {
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+}
+
+.cart-item-price {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.cart-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 2px 5px;
+}
+
+.qty-btn {
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn i {
+    font-size: 18px;
+}
+
+.qty-display {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.remove-item-btn {
+    color: #d32f2f;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.cart-total-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

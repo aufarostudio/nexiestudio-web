@@ -35,9 +35,68 @@
     </header>
 
     <!-- Menu Content -->
-    <main id="menu-container" style="margin-top: 40px;">
+    <main id="menu-container" style="margin-top: 40px; padding-bottom: 80px;">
         <!-- Categories and products will be loaded here -->
     </main>
+
+    <!-- Floating Cart Button -->
+    <div id="floating-cart" class="floating-cart" style="display: none;" onclick="openCart()">
+        <div class="cart-info">
+            <div class="cart-qty" id="cart-qty-badge">0</div>
+            <i class="material-icons">shopping_bag</i>
+            <span style="margin-left: 10px; font-weight: 500;">Ver Pedido</span>
+        </div>
+        <div class="cart-total" id="cart-floating-total">S/ 0.00</div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal bottom-sheet cart-modal">
+        <div class="modal-content">
+            <div class="cart-header">
+                <h5>Tu Pedido</h5>
+                <i class="material-icons modal-close" style="cursor: pointer;">close</i>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Items Container -->
+            <ul class="collection" id="cart-items-container">
+                <!-- Cart items will be rendered here -->
+            </ul>
+
+            <!-- Payment Method -->
+            <div class="payment-section" style="margin-top: 20px;">
+                <h6 style="font-weight: 600; margin-bottom: 15px;">Método de Pago</h6>
+                <form id="payment-form">
+                    <p>
+                        <label>
+                            <input name="payment_method" type="radio" value="Yape" checked />
+                            <span>Yape</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input name="payment_method" type="radio" value="Efectivo" />
+                            <span>Efectivo</span>
+                        </label>
+                    </p>
+                </form>
+            </div>
+            
+            <div class="divider" style="margin-top: 20px; margin-bottom: 10px;"></div>
+            
+            <!-- Total Summary -->
+            <div class="cart-total-summary">
+                <span style="font-size: 1.2rem; font-weight: 600;">Total</span>
+                <span id="cart-modal-total" style="font-size: 1.2rem; font-weight: 700; color: #333;">S/ 0.00</span>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding: 10px 24px; height: auto;">
+            <a href="#!" class="btn w-100 gradient-btn waves-effect waves-light" style="width: 100%; border-radius: 8px; height: 45px; display: flex; align-items: center; justify-content: center; font-weight: bold;" onclick="checkout()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" style="width: 20px; margin-right: 10px;"> Hacer Pedido
+            </a>
+        </div>
+    </div>
 
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
