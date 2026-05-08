@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo funciona la plantilla de Excel de control de ingresos y gastos</title>
+    <meta name="description"
+        content="Aprende a utilizar la plantilla de Excel de control de ingresos y gastos con estos sencillos pasos y video explicativo.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-start: #3b82f6;
+            --accent-end: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .video-container {
+            background: var(--surface-color);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4), 0 10px 12px -6px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-wrapper {
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            background-color: #000;
+        }
+
+        .steps-section {
+            background: var(--surface-color);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .steps-section h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .steps-section h2::before {
+            content: '';
+            display: block;
+            width: 32px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+            border-radius: 2px;
+        }
+
+        .step-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .step-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(8px);
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+            color: white;
+            font-weight: 800;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-top: 0.25rem;
+            line-height: 1.7;
+        }
+
+        .step-content strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+
+            .container {
+                gap: 2rem;
+            }
+
+            .steps-section {
+                padding: 1.5rem;
+            }
+
+            .step-item {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .step-number {
+                width: 32px;
+                height: 32px;
+                min-width: 32px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <header>
+            <h1>Cómo funciona la plantilla de excel de control de ingresos y gastos</h1>
+        </header>
+
+        <section class="video-container">
+            <div class="video-wrapper">
+                <script src="https://fast.wistia.com/player.js" async></script>
+                <script src="https://fast.wistia.com/embed/itfj32hag7.js" async type="module"></script>
+                <style>
+                    wistia-player[media-id='itfj32hag7']:not(:defined) {
+                        background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/itfj32hag7/swatch');
+                        display: block;
+                        filter: blur(5px);
+                        padding-top: 56.25%;
+                    }
+                </style>
+                <wistia-player media-id="itfj32hag7" aspect="1.7777777777777777"></wistia-player>
+            </div>
+        </section>
+
+        <section class="steps-section">
+            <h2>Pasos para usar</h2>
+            <ol class="step-list">
+                <li class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <p><strong>Descarga la plantilla</strong> de la URL que se le compartió por WhatsApp.</p>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <p>Al abrir el archivo, le pedirá <strong>validar su código de licencia</strong>, que también se
+                            le compartió por WhatsApp.</p>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <p>Elimine los datos de prueba que están desde la <strong>hoja 3 "Base de Datos"</strong>, dando
+                            clic desde la columna izquierda donde están los números 1, 2, 3, 4, 5... verticalmente. Al
+                            ver que está seleccionado horizontalmente la fila, puede presionar la tecla
+                            <strong>Supr</strong> (Suprimir).</p>
+                    </div>
+                </li>
+            </ol>
+        </section>
+    </main>
+</body>
+
+</html>
